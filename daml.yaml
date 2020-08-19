@@ -13,6 +13,6 @@ exposed-modules:
 dependencies:
 - daml-prim
 - daml-stdlib
-- ../core/dist/dabl-integration-core.dar
-- ../slack/dist/dabl-integration-slack.dar
-- ../coindesk/dist/dabl-integration-coindesk.dar
+- ../daml-dit-integration-core/dist/dabl-integration-core.dar
+- ../daml-dit-integration-slack/dist/dabl-integration-slack.dar
+- ../daml-dit-integration-coindesk/dist/dabl-integration-coindesk.dar
