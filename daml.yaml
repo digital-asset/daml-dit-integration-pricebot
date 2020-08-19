@@ -1,0 +1,18 @@
+## Copyright (c) 2020, Digital Asset (Switzerland) GmbH and/or its affiliates.
+## SPDX-License-Identifier: Apache-2.0
+
+sdk-version: 1.4.0
+name: dabl-price-bot
+version: 1.0.0
+source: daml/Modules.daml
+parties:
+- Alice
+- Bob
+exposed-modules:
+- PriceBot.PriceBot
+dependencies:
+- daml-prim
+- daml-stdlib
+- ../core/dist/dabl-integration-core.dar
+- ../slack/dist/dabl-integration-slack.dar
+- ../coindesk/dist/dabl-integration-coindesk.dar

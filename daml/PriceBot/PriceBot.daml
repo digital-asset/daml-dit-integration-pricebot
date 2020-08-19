@@ -1,0 +1,104 @@
+--------------------------------------------------------------------------------
+-- Digital Asset Legal Notices
+--
+-- Copyright Notice
+-- Copyright (c) 2014-2019, Digital Asset (Switzerland) GmbH and/or its affiliates.
+-- All rights reserved.
+--
+-- License Restrictions
+-- This software and related documentation are provided under a license agreement
+-- containing restrictions on use and disclosure and are protected by intellectual
+-- property laws. Except as expressly permitted in your license agreement or
+-- allowed by law, you may not use, copy, reproduce, translate, broadcast, modify,
+-- license, transmit, distribute, exhibit, perform, publish, or display any part,
+-- in any form, or by any means. Reverse engineering, disassembly, or decompilation
+-- of this software, unless required by law for interoperability, is prohibited.
+--
+-- Warranty Disclaimer
+--
+-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+-- FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY RIGHTS.
+-- IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+-- DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+-- ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+-- DEALINGS IN THE SOFTWARE.
+--------------------------------------------------------------------------------
+
+daml 1.2
+
+module PriceBot.PriceBot where
+
+import SlackIntegration.InboundDirectMessage
+import SlackIntegration.OutboundMessage
+
+import CoinDesk.PriceRequest
+
+import Utility.Sequence
+
+template PriceBot
+  with
+    integrationParty : Party
+  where
+    signatory integrationParty
+
+    controller integrationParty can
+      PriceBot_AcceptMessage : ContractId PriceBotContinuation
+        with
+          cid : ContractId InboundDirectMessage
+        do
+          requestMessage <- fetch cid
+
+          id <- getNextSequenceValue integrationParty "default"
+
+          create PriceRequest with
+            integrationParty
+            currencyCode=requestMessage.messageText
+            continuationId=id
+
+          create PriceBotContinuation with
+            integrationParty
+            slackChannel=requestMessage.slackChannel
+            continuationId=id
+
+template PriceBotForwarder
+  with
+    integrationParty : Party
+  where
+    signatory integrationParty
+
+    controller integrationParty can
+       PriceBotForwarder_AcceptMessage : ContractId OutboundMessage
+         with
+           cid : ContractId PriceResponseSuccess
+         do
+           resp <- fetch cid
+
+           (contId, cont) <- fetchByKey @PriceBotContinuation (integrationParty, resp.continuationId)
+           exercise contId PriceBotContinuation_Continue
+             with responseCid=cid
+
+template PriceBotContinuation
+  with
+    integrationParty : Party
+    slackChannel : Text
+    continuationId : Int
+  where
+    signatory integrationParty
+
+    key (integrationParty, continuationId) : (Party, Int)
+    maintainer key._1
+
+    controller integrationParty can
+      PriceBotContinuation_Continue : ContractId OutboundMessage
+        with
+          responseCid : ContractId PriceResponseSuccess
+        do
+          response <- fetch responseCid
+
+          create OutboundMessage with
+            integrationParty
+            slackChannel=slackChannel
+            messageText="Price : " <> (show response.rate)
+            attemptCount=0
+

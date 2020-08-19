@@ -1,0 +1,14 @@
+## Copyright (c) 2020, Digital Asset (Switzerland) GmbH and/or its affiliates.
+## SPDX-License-Identifier: Apache-2.0
+
+catalog:
+    name: dabl-pricebot
+    version: 0.5.1
+    short_description: Pricebot
+    description: Example Slack/CoinDesk Bot
+    release_date: 2020-08-13
+    author: Digital Asset (Switzerland) GmbH
+    license: Apache-2.0
+    tags: [ experimental ]
+subdeployments:
+    - dabl-pricebot.dar
