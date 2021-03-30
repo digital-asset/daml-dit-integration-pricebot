@@ -2,7 +2,7 @@
 -- Digital Asset Legal Notices
 --
 -- Copyright Notice
--- Copyright (c) 2014-2019, Digital Asset (Switzerland) GmbH and/or its affiliates.
+-- Copyright (c) 2014-2021, Digital Asset (Switzerland) GmbH and/or its affiliates.
 -- All rights reserved.
 --
 -- License Restrictions
@@ -24,8 +24,6 @@
 -- ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 -- DEALINGS IN THE SOFTWARE.
 --------------------------------------------------------------------------------
-
-daml 1.2
 
 module PriceBot.PriceBot where
 
